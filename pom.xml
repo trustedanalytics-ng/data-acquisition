@@ -141,12 +141,33 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+              <groupId>com.spotify</groupId>
+              <artifactId>docker-maven-plugin</artifactId>
+              <configuration>
+                <imageName>${docker.imageName}</imageName>
+                <baseImage>${docker.registry}/tap-base-java:java8-jessie</baseImage>
+                <cmd>["java", "-jar", "/${project.build.finalName}.jar"]</cmd>
+                <resources>
+                   <resource>
+                     <targetPath>/</targetPath>
+                     <directory>${project.build.directory}</directory>
+                     <include>${project.build.finalName}.jar</include>
+                   </resource>
+                </resources>
+                <env>
+                  <PORT>80</PORT>
+                </env>
+              </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
         <start-class>org.trustedanalytics.das.Main</start-class>
         <jackson.version>2.4.3</jackson.version>
+        <docker.imageName>${project.artifactId}</docker.imageName>
+        <docker.registry>tapimages.us.enableiot.com:8080</docker.registry>
     </properties>
 
     <dependencies>

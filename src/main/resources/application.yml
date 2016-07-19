@@ -10,7 +10,7 @@ kafka:
   producer:
     serializer.class: kafka.serializer.StringEncoder
     key.serializer.class: kafka.serializer.StringEncoder
-    metadata.broker.list: ${vcap.services.kafka.credentials.uri}
+    metadata.broker.list: ${kafka.uri}
     retry.backoff.ms: 500
 
   consumer:  
@@ -18,20 +18,21 @@ kafka:
     auto.commit.interval.ms: 1000
     auto.offset.reset: smallest 
     #watch for chroot (kafka)
-    zookeeper.connect: "${vcap.services.zookeeper.credentials.uri}/kafka"
+    #TODO: add /kafka path on shifting from mock to a real CDH
+    zookeeper.connect: "${zookeeper.uri}"
     zookeeper.chroot: kafka
     zookeeper.session.timeout.ms: 400
     zookeeper.sync.time.ms: 200
 
 services:
-  downloader: "${vcap.services.downloader.credentials.url:http://localhost:8090}"
-  metadataparser: "${vcap.services.metadataparser.credentials.url:http://localhost:8900}"
-  user-management: "${vcap.services.user-management.credentials.host:http://localhost:9998}"
+  downloader: "${downloader.host:http://localhost:8090}"
+  metadataparser: "${metadataparser.host:http://localhost:8900}"
+  user-management: "${user.management.host:http://localhost:9998}"
   
 spring.profiles.active: inmemory,local
 
 callback:
-  url: "http://${vcap.application.application_uris[0]:localhost:8080}/rest/das/callbacks/{app}/{requestId}"
+  url: "http://${dataacquisition.host:localhost:8080}/rest/das/callbacks/{app}/{requestId}"
 
 security:
   ignored: /open,/v2/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*
@@ -39,17 +40,17 @@ security:
 spring.oauth2.resource:
   id: cloud_controller
   jwt:
-    keyUri: ${vcap.services.sso.credentials.tokenKey}
+    keyUri: ${sso.tokenKey}
 
 logging:
   level:
     org.springframework: INFO
     org.trustedanalytics: INFO
-    kafka: DEBUG
+    kafka: INFO
 
 cf:
-  resource: ${vcap.services.sso.credentials.apiEndpoint}
-  uaa: ${vcap.services.sso.credentials.uaaUri}
+  resource: ${sso.apiEndpoint}
+  uaa: ${sso.uaaUri}
 
 endpoints.enabled: false
 endpoints.health.enabled: true

@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.das.security.authorization;
+package org.trustedanalytics.das.store.cloud;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 
 @Configuration
-@Profile({"cloud", "local", "kube"})
-public class AuthorizationConfig {
+@Profile("kube")
+public class KubeStoreConfiguration {
 
-    @Value("${services.user-management}")
-    private String userManagementBaseUrl;
-
-    @Bean
-    public Authorization authorization() {
-        return new PlatformAuthorization(userManagementBaseUrl);
+    @Value("${redis.host}")
+    private String redisHost;
+    
+    @Value("${redis.port}")
+    private int redisPort;
+    
+    public RedisConnectionFactory redisConnectionFactory() {
+        JedisConnectionFactory factory = new JedisConnectionFactory();
+        factory.setHostName(redisHost);
+        factory.setPort(redisPort);
+        factory.setUsePool(true);
+        return factory;        
     }
 }

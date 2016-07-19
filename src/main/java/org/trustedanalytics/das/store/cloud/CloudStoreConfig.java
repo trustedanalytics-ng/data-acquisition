@@ -30,7 +30,7 @@ import org.trustedanalytics.redis.encryption.EncryptionService;
 import org.trustedanalytics.redis.encryption.serializer.SecureJacksonJsonRedisSerializer;
 
 @Configuration
-@Profile("cloud")
+@Profile({"cloud", "kube"})
 public class CloudStoreConfig {
 
     @Value("requests")

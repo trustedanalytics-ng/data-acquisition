@@ -44,7 +44,7 @@ import static org.trustedanalytics.das.kafka.KafkaConstants.KAFKA_EMBEDED_TYPE;
 
 @Configuration
 @ConfigurationProperties(prefix = "kafka")
-@Profile("cloud")
+@Profile({"cloud", "kube"})
 public class KafkaConfiguration {
     enum TopicName {
         toRequestsParser, toMetadataParser, toDownloader
