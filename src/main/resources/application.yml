@@ -25,14 +25,14 @@ kafka:
     zookeeper.sync.time.ms: 200
 
 services:
-  downloader: "${downloader.host:http://localhost:8090}"
-  metadataparser: "${metadataparser.host:http://localhost:8900}"
-  user-management: "${user.management.host:http://localhost:9998}"
+  downloader: "${downloader.uri:http://localhost:8090}"
+  metadataparser: "${metadata.parser.uri:http://localhost:8900}"
+  user-management: "${user.management.uri:http://localhost:9998}"
   
 spring.profiles.active: inmemory,local
 
 callback:
-  url: "http://${dataacquisition.host:localhost:8080}/rest/das/callbacks/{app}/{requestId}"
+  url: "${data.acquisition.uri:localhost:8080}/rest/das/callbacks/{app}/{requestId}"
 
 security:
   ignored: /open,/v2/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*
