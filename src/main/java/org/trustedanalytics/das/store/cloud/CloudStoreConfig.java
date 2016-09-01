@@ -23,10 +23,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.trustedanalytics.das.parser.Request;
+import org.trustedanalytics.redis.encryption.EncryptionService;
+import org.trustedanalytics.redis.encryption.serializer.SecureJacksonJsonRedisSerializer;
 
 @Configuration
 @Profile("cloud")
@@ -35,20 +36,32 @@ public class CloudStoreConfig {
     @Value("requests")
     private String redisRequestsKey;
 
+    @Value("${request.store.db.cipher.key}")
+    private String cipher;
+
+    @Bean
+    protected EncryptionService encryptionService() {
+        return new EncryptionService(cipher);
+    }
+
+    @Bean
+    SecureJacksonJsonRedisSerializer<Request> secureJacksonJsonRedisSerializer(EncryptionService encryptionService) {
+        return new SecureJacksonJsonRedisSerializer<Request>(Request.class, encryptionService);
+    }
+
     @Bean
     public RequestStore redisRequestStore(RedisOperations<String, Request> redisTemplate) {
         return new RedisRequestRepository(redisTemplate.boundHashOps(redisRequestsKey));
     }
 
     @Bean
-    public RedisOperations<String, Request> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisOperations<String, Request> redisTemplate(RedisConnectionFactory redisConnectionFactory,
+                                                          RedisSerializer<Request> requestSerializer) {
         RedisTemplate<String, Request> template = new RedisTemplate<String, Request>();
 
         template.setConnectionFactory(redisConnectionFactory);
 
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        Jackson2JsonRedisSerializer<Request> requestSerializer = new Jackson2JsonRedisSerializer<Request>(Request.class);
-
         template.setKeySerializer(keySerializer);
         template.setValueSerializer(requestSerializer);
         template.setHashKeySerializer(keySerializer);
