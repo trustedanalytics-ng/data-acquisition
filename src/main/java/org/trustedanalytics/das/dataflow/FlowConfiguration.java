@@ -16,6 +16,7 @@
 package org.trustedanalytics.das.dataflow;
 
 import com.google.common.collect.ImmutableSet;
+import org.trustedanalytics.das.service.BadRequestException;
 import org.trustedanalytics.das.service.FlowHandler;
 import org.trustedanalytics.das.service.RequestFlowForExistingFile;
 import org.trustedanalytics.das.service.RequestFlowForNewFile;
@@ -51,8 +52,10 @@ public class FlowConfiguration {
        return scheme -> {
            if(ImmutableSet.of("http", "https").contains(scheme)) {
                 return requestFlowForNewFile();
-           } else {
+           } else if("hdfs".equalsIgnoreCase(scheme)){
                return requestFlowForExistingFile();
+           } else {
+               throw new BadRequestException("Unknown or not specified protocol");
            }
        };
     }

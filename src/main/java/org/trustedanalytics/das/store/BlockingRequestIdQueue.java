@@ -15,8 +15,6 @@
  */
 package org.trustedanalytics.das.store;
 
-import org.trustedanalytics.das.parser.Request;
-
 /**
  * Approximation of publish/subscribe interface
  *

@@ -16,13 +16,18 @@
 package org.trustedanalytics.das.service;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isIn;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
 import org.trustedanalytics.das.dataflow.FlowManager;
 import org.trustedanalytics.das.helper.RequestIdGenerator;
@@ -45,7 +50,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RestDataAquisitionServiceTest {
+public class RestDataAcquisitionServiceTest {
 
     @Mock
     private RequestStore requestStore;
@@ -68,46 +73,36 @@ public class RestDataAquisitionServiceTest {
     @Mock
     PermissionVerifier permissionVerifier;
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     @InjectMocks
     private RestDataAcquisitionService service;
 
     @Before
     public void setUp() {
-        when(flowDispatcher.apply(anyString())).thenReturn(new RequestFlowForExistingFile());
+        when(flowDispatcher.apply("hdfs")).thenReturn(new RequestFlowForExistingFile());
         when(flowDispatcher.apply("http")).thenReturn(new RequestFlowForNewFile());
         when(flowDispatcher.apply("https")).thenReturn(new RequestFlowForNewFile());
+        when(flowDispatcher.apply(argThat(not(isIn(ImmutableSet.of("http","https","hdfs")))))).thenThrow(new BadRequestException("Unknown or not specified protocol"));
     }
 
     @Test
     public void testAdd_whenSourceIsHttpResource_DownloadFile() throws Exception {
         testAdd(getTestHttpRequest());
-
     }
 
     @Test
     public void testAdd_whenSourceIsHdfs_SkipDownloadAndNotify() throws Exception {
         testAdd(getTestRequestWithHdfsFile(), State.VALIDATED, r ->
                 verify(flowManager).requestDownloaded(r));
-
     }
 
     @Test
-    public void testAdd_whenSourceIsLocalFile_SkipDownloadAndNotify() throws Exception {
-        testAdd(getTestRequestWithLocalFile1(), State.VALIDATED, r ->
-                verify(flowManager).requestDownloaded(r));
-    }
-
-    @Test
-    public void testAdd_whenSourceIsLocalFile2_SkipDownloadAndNotify() throws Exception {
-        testAdd(getTestRequestWithLocalFile2(), State.VALIDATED, r ->
-                verify(flowManager).requestDownloaded(r));
-    }
-
-    @Test
-    public void testAdd_whenSourceIsLocalFile3_SkipDownloadAndNotify() throws Exception {
-        testAdd(getTestRequestWithLocalFile3(), State.VALIDATED, r ->
-                verify(flowManager).requestDownloaded(r));
-
+    public void testAdd_whenSourceHasUnknownProtocol_ThrowException() throws AccessDeniedException {
+        exception.expect(BadRequestException.class);
+        exception.expectMessage("Unknown or not specified protocol");
+        testAdd(getTestRequestWithUnknownProtocol());
     }
 
     @Test
@@ -158,23 +153,10 @@ public class RestDataAquisitionServiceTest {
                 .withId("1");
     }
 
-    private Request.RequestBuilder getTestRequestWithLocalFile1() {
-        return new Request.RequestBuilder(1, "file.csv")
+    private Request.RequestBuilder getTestRequestWithUnknownProtocol() {
+        return new Request.RequestBuilder(1, "foo/bar.txt")
                 .withOrgUUID("org")
                 .withId("1");
     }
-
-    private Request.RequestBuilder getTestRequestWithLocalFile2() {
-        return new Request.RequestBuilder(1, "file (1).csv")
-                .withOrgUUID("org")
-                .withId("1");
-    }
-
-    private Request.RequestBuilder getTestRequestWithLocalFile3() {
-        return new Request.RequestBuilder(1, "file:///file%20(1).csv")
-                .withOrgUUID("org")
-                .withId("1");
-    }
-
 
 }

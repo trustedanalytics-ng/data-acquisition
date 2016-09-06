@@ -62,7 +62,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
-@RequestMapping(value="rest/das/requests")
+@RequestMapping(value = "rest/das/requests")
 public class RestDataAcquisitionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestDataAcquisitionService.class);
@@ -95,7 +95,7 @@ public class RestDataAcquisitionService {
             notes = "Privilege level: Consumer of this endpoint must be a member of organization based on valid access token"
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK",response = RequestDTO.class),
+            @ApiResponse(code = 200, message = "OK", response = RequestDTO.class),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Can't access this organization."),
             @ApiResponse(code = 500, message = "Internal server error, see logs for details.")
@@ -104,7 +104,7 @@ public class RestDataAcquisitionService {
     @ResponseBody
     @ResponseStatus(ACCEPTED)
     public RequestDTO addRequest(@RequestBody RequestDTO requestDto, HttpServletRequest context)
-        throws AccessDeniedException {
+            throws AccessDeniedException {
         permissionVerifier.throwForbiddenWhenNotAuthorized(context, requestDto);
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -112,18 +112,18 @@ public class RestDataAcquisitionService {
 
         final Request request =
                 new Request.RequestBuilder(requestDto)
-                .withToken(token)
-                .withId(requestIdGenerator.getId(requestDto.getSource()))
-                .build();
+                        .withToken(token)
+                        .withId(requestIdGenerator.getId(requestDto.getSource()))
+                        .build();
 
         LOGGER.debug("add({})", requestDto);
-        if(StringUtils.isBlank(request.getSource())) {
+        if (StringUtils.isBlank(request.getSource())) {
             throw new BadRequestException("Missing field value: source");
         }
 
         flowDispatcher
-            .apply(request.getSource().split(":")[0])
-            .process(request, flowManager);
+                .apply(request.getSource().split(":")[0])
+                .process(request, flowManager);
         return request.toDto();
     }
 
@@ -132,7 +132,7 @@ public class RestDataAcquisitionService {
             notes = "Privilege level: Consumer of this endpoint must be a member of organization based on valid access token"
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK",response = RequestDTO.class),
+            @ApiResponse(code = 200, message = "OK", response = RequestDTO.class),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Can't access this organization."),
             @ApiResponse(code = 500, message = "Internal server error, see logs for details.")
@@ -153,7 +153,7 @@ public class RestDataAcquisitionService {
             notes = "Privilege level: Consumer of this endpoint must be a member of organization based on valid access token"
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK",response = List.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = List.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Can't access this organization."),
             @ApiResponse(code = 500, message = "Internal server error, see logs for details.")
@@ -161,15 +161,15 @@ public class RestDataAcquisitionService {
     @RequestMapping(method = GET)
     @ResponseBody
     public List<RequestDTO> getAllRequests(@RequestParam(required = false) String orgs, HttpServletRequest context)
-    throws AccessDeniedException {
+            throws AccessDeniedException {
         LOGGER.debug("getAllRequest()");
 
         Collection<UUID> hasAccess = Arrays.asList(permissionVerifier.getAccessibleOrgsIDs(context));
 
         String[] uuids = null;
-        if(orgs != null) {
+        if (orgs != null) {
             uuids = orgs.split(",");
-            for(String u : uuids) {
+            for (String u : uuids) {
                 permissionVerifier.throwForbiddenWhenIdNotListed(hasAccess, UUID.fromString(u));
             }
         } else {
@@ -196,7 +196,7 @@ public class RestDataAcquisitionService {
     })
     @RequestMapping(value = "/{id}", method = DELETE)
     public DefaultResponse delete(@PathVariable String id, HttpServletRequest context)
-        throws AccessDeniedException {
+            throws AccessDeniedException {
         LOGGER.debug("delete({})", id);
         RequestDTO toDelete = requestStore.get(id).orElseThrow(NoSuchElementException::new).toDto();
         permissionVerifier.throwForbiddenWhenNotAuthorized(context, toDelete);
@@ -216,17 +216,17 @@ public class RestDataAcquisitionService {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public void accessForbidden( HttpServletResponse response ) throws IOException {
+    public void accessForbidden(HttpServletResponse response) throws IOException {
         LOGGER.warn("Access forbidden.");
         response.sendError(FORBIDDEN.value(), "You do not have access to requested organization.");
     }
-    
+
     public static final class DefaultResponse {
         private String message;
 
         private DefaultResponse() {
         }
-        
+
         public static DefaultResponse newInstance(String message) {
             DefaultResponse response = new DefaultResponse();
             response.message = message;
