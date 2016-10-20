@@ -32,21 +32,21 @@ services:
 spring.profiles.active: inmemory,local
 
 callback:
-  url: "${data.acquisition.uri:localhost:8080}/rest/das/callbacks/{app}/{requestId}"
+  url: "${data.acquisition.uri:http://localhost:8080}/rest/das/callbacks/{app}/{requestId}"
 
 security:
   ignored: /open,/v2/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*
 
 spring.oauth2.resource:
-  id: cloud_controller
+  id: tap
   jwt:
     keyUri: ${sso.tokenKey}
 
-logging:
-  level:
-    org.springframework: INFO
-    org.trustedanalytics: INFO
-    kafka: INFO
+logging.level:
+  root: INFO 
+#  org.springframework: INFO
+#  org.trustedanalytics: INFO
+#  kafka: INFO
 
 cf:
   resource: ${sso.apiEndpoint}

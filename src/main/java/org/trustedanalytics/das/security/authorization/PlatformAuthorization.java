@@ -15,18 +15,20 @@
  */
 package org.trustedanalytics.das.security.authorization;
 
-import org.trustedanalytics.cloud.cc.api.CcOrgPermission;
-import org.trustedanalytics.das.security.errors.OauthTokenMissingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import org.trustedanalytics.das.security.errors.OauthTokenMissingException;
+import org.trustedanalytics.usermanagement.security.model.OrgPermission;
 
 public class PlatformAuthorization implements Authorization {
 
@@ -38,7 +40,7 @@ public class PlatformAuthorization implements Authorization {
         this.userManagementBaseUrl = userManagementBaseUrl;
     }
 
-    @Override public Collection<CcOrgPermission> getAccessibleOrgs(HttpServletRequest request)
+    @Override public Collection<OrgPermission> getAccessibleOrgs(HttpServletRequest request)
         throws IOException, ServletException {
 
         LOGGER.debug("Collecting user's orgs");
@@ -48,13 +50,13 @@ public class PlatformAuthorization implements Authorization {
             token = getToken(request);
         } catch (OauthTokenMissingException e) {
             LOGGER.debug(e.getMessage(), e);
-            return new ArrayList<CcOrgPermission>() {
+            return new ArrayList<OrgPermission>() {
             };
         }
 
         String url = userManagementBaseUrl + "/rest/orgs/permissions";
-        ResponseEntity<CcOrgPermission[]> access = RestOperationsHelpers.getForEntityWithToken(
-            new RestTemplate(), token, url, CcOrgPermission[].class);
+        ResponseEntity<OrgPermission[]> access = RestOperationsHelpers.getForEntityWithToken(
+            new RestTemplate(), token, url, OrgPermission[].class);
         return Arrays.asList(access.getBody());
     }
 

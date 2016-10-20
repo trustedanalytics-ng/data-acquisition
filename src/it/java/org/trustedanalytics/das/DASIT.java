@@ -16,16 +16,27 @@
 package org.trustedanalytics.das;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
-import org.trustedanalytics.cloud.cc.api.CcOrg;
-import org.trustedanalytics.cloud.cc.api.CcOrgPermission;
-import org.trustedanalytics.das.parser.Request;
-import org.trustedanalytics.das.parser.State;
-import org.trustedanalytics.das.security.authorization.Authorization;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,19 +55,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
+import org.trustedanalytics.das.parser.Request;
+import org.trustedanalytics.das.parser.State;
+import org.trustedanalytics.das.security.authorization.Authorization;
 import org.trustedanalytics.das.service.RequestDTO;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.trustedanalytics.usermanagement.orgs.model.Org;
+import org.trustedanalytics.usermanagement.security.model.OrgPermission;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Main.class, InTestConfiguration.class})
@@ -94,14 +99,14 @@ public class DASIT {
         effectiveBaseUrl = new URI(baseUrl);
     }
 
-    private void prepareAccessibleOrgList(CcOrgPermission toBePlacedInList) throws IOException, ServletException {
-        Collection<CcOrgPermission> accessibleOrgs = new ArrayList<>();
+    private void prepareAccessibleOrgList(OrgPermission toBePlacedInList) throws IOException, ServletException {
+        Collection<OrgPermission> accessibleOrgs = new ArrayList<>();
         accessibleOrgs.add(toBePlacedInList);
         when(authorization.getAccessibleOrgs(any())).thenReturn(accessibleOrgs);
     }
 
     private void noOrgsAccessible() throws IOException, ServletException {
-        Collection<CcOrgPermission> accessibleOrgs = new ArrayList<>();
+        Collection<OrgPermission> accessibleOrgs = new ArrayList<>();
         when(authorization.getAccessibleOrgs(any())).thenReturn(accessibleOrgs);
     }
 
@@ -109,9 +114,8 @@ public class DASIT {
     public void postRequest()
         throws InterruptedException, IOException, ServletException {
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn(TOKEN);
-        CcOrg org = new CcOrg(UUID.fromString("11111111-2222-3333-4444-555555555555"), "fakeName");
-        CcOrgPermission permission = new CcOrgPermission();
-        permission.setOrganization(org);
+        Org org = new Org(UUID.fromString("11111111-2222-3333-4444-555555555555"), "fakeName");
+        OrgPermission permission = new OrgPermission(org, false, false);
         prepareAccessibleOrgList(permission);
 
         ResponseEntity<RequestDTO> response =
@@ -140,9 +144,8 @@ public class DASIT {
     public void postRequest_emptySource_shouldREturn400()
             throws InterruptedException, IOException, ServletException {
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn(TOKEN);
-        CcOrg org = new CcOrg(UUID.fromString("11111111-2222-3333-4444-555555555555"), "fakeName");
-        CcOrgPermission permission = new CcOrgPermission();
-        permission.setOrganization(org);
+        Org org = new Org(UUID.fromString("11111111-2222-3333-4444-555555555555"), "fakeName");
+        OrgPermission permission = new OrgPermission(org, false, false);
         prepareAccessibleOrgList(permission);
 
         ResponseEntity<String> response =

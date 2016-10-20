@@ -15,8 +15,14 @@
  */
 package org.trustedanalytics.das.security;
 
-import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
-import org.trustedanalytics.das.security.authorization.Authorization;
+import java.io.IOException;
+import java.util.UUID;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +30,9 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.UUID;
+import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
+import org.trustedanalytics.das.security.authorization.Authorization;
+import org.trustedanalytics.usermanagement.security.model.OrgPermission;
 
 public class PermissionAcquireFilter extends OncePerRequestFilter {
 
@@ -62,7 +64,7 @@ public class PermissionAcquireFilter extends OncePerRequestFilter {
         }
         else {
             UUID[] ids = authorization.getAccessibleOrgs(request).stream()
-                    .map(org -> org.getOrganization().getGuid()).toArray(size -> new UUID[size]);
+                    .map(p -> p.getOrg().getGuid()).toArray(size -> new UUID[size]);
             request.setAttribute(ACCESSIBLE_ORGS, ids);
 
             if (ids.length > 0) {

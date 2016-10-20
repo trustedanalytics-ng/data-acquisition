@@ -15,13 +15,16 @@
  */
 package org.trustedanalytics.das.security.authorization;
 
-import org.trustedanalytics.cloud.cc.api.CcOrgPermission;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
+import org.trustedanalytics.usermanagement.security.model.OrgPermission;
+
+
 public interface Authorization {
-    Collection<CcOrgPermission> getAccessibleOrgs(HttpServletRequest request)
+    Collection<OrgPermission> getAccessibleOrgs(HttpServletRequest request)
         throws IOException, ServletException;
 }
