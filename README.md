@@ -17,6 +17,10 @@ DAS requires following services to function properly:
 - Metadata parser
 - User management
 
+## Required environment variables
+
+DAS require 16-characters **REQUEST_STORE_DB_CIPHER_KEY** (randomly ganerated) for encrypting data in request store.
+
 ## Running DAS locally - demo
 
 To run and test DAS locally you need to install and run User management, Downloader and Metadata parser services.  Moreover, you need to publish Metadata parser in version defined in DAS pom.xml to your local maven repository.
@@ -44,6 +48,10 @@ To run and test DAS locally you need to install and run User management, Downloa
 	
 #### DAS
 - pull *data-acquisition* from a git repository
+- set environemnt variable
+
+```REQUEST_STORE_DB_CIPHER_KEY="16-Chars_CipherK"```
+
 - run service from command line with the following parameters:
 	
 ```DOWNLOADER_URL="http://localhost:8090" DOWNLOADS_DIR=/tmp mvn clean test spring-boot:run```
