@@ -16,6 +16,7 @@
 package org.trustedanalytics.das.store.cloud;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -31,6 +32,7 @@ public class KubeStoreConfiguration {
     @Value("${redis.port}")
     private int redisPort;
     
+    @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         JedisConnectionFactory factory = new JedisConnectionFactory();
         factory.setHostName(redisHost);
