@@ -35,7 +35,7 @@ callback:
   url: "${data.acquisition.uri:http://localhost:8080}/rest/das/callbacks/{app}/{requestId}"
 
 security:
-  ignored: /open,/v2/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*
+  ignored: /open,/v2/api-docs,/api-docs/default/*,/images/*,/lib/*,/css/*,/health
 
 spring.oauth2.resource:
   id: tap
