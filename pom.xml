@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>data-acquisition</artifactId>
-    <version>0.7.5</version>
+    <version>0.7.6</version>
     <name>DAS</name>
     <description>Data Acquisition Service</description>
 
@@ -147,7 +147,7 @@
               <version>0.4.12</version>
               <configuration>
                 <imageName>${docker.imageName}</imageName>
-                <baseImage>${docker.registry}/tap-base-java:java8-jessie</baseImage>
+                <baseImage>tapimages:8080/tap-base-java:java8-jessie</baseImage>
                 <cmd>java $JAVA_OPTS -jar /${project.build.finalName}.jar</cmd>
                 <resources>
                    <resource>
@@ -170,7 +170,6 @@
         <start-class>org.trustedanalytics.das.Main</start-class>
         <jackson.version>2.4.3</jackson.version>
         <docker.imageName>${project.artifactId}</docker.imageName>
-        <docker.registry>tapimages.us.enableiot.com:8080</docker.registry>
     </properties>
 
     <dependencies>
