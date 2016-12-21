@@ -17,7 +17,7 @@ package org.trustedanalytics.das.subservices.downloader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriTemplate;
 import org.trustedanalytics.das.helper.OAuthAuthenticator;
 import org.trustedanalytics.das.helper.RestTokenAuthenticator;
@@ -26,7 +26,7 @@ import org.trustedanalytics.das.subservices.callbacks.CallbackUrlListener;
 
 public class RestDownloaderClient implements DownloaderClient, CallbackUrlListener {
 
-    private final RestTemplate restTemplate;
+    private final RestOperations restTemplate;
     private final String putRequestUrl;
     private final String getRequestStatusUrl;
     private final RestTokenAuthenticator authenticator = new OAuthAuthenticator();
@@ -34,7 +34,7 @@ public class RestDownloaderClient implements DownloaderClient, CallbackUrlListen
     private static final Logger LOGGER = LoggerFactory.getLogger(RestDownloaderClient.class);
 
     public RestDownloaderClient(
-        RestTemplate restTemplate,
+        RestOperations restTemplate,
         String downloaderServiceUrl,
         String callbacksUrl) {
         this.restTemplate = restTemplate;
@@ -57,9 +57,10 @@ public class RestDownloaderClient implements DownloaderClient, CallbackUrlListen
 
         DownloadRequest downloadRequest = new DownloadRequest();
         downloadRequest.setOrgUUID(request.getOrgUUID());
-        downloadRequest.setSource(request.getSource().toString());
+        downloadRequest.setSource(request.getSource());
         downloadRequest.setCallback(new UriTemplate(callbacksUrl).
                 expand("downloader", request.getId()).toString());
+        downloadRequest.setTitle(request.getTitle());
 
         return restTemplate.postForObject(putRequestUrl, downloadRequest, DownloadStatus.class);
     }

@@ -39,7 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.web.client.RestClientException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RestDownloaderClientTest {
+public class PoolingThreadedServiceTest {
     ServiceManager serviceManager;
 
     PoolingThreadedService poolingService;

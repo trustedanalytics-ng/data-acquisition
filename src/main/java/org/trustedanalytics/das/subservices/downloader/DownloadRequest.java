@@ -15,44 +15,14 @@
  */
 package org.trustedanalytics.das.subservices.downloader;
 
-import com.google.common.base.MoreObjects;
+import lombok.Data;
 
+@Data
 public class DownloadRequest {
 
     private String orgUUID;
     private String source;
     private String callback;
+    private String title;
 
-    public String getOrgUUID() {
-        return orgUUID;
-    }
-
-    public void setOrgUUID(String orgUUID) {
-        this.orgUUID = orgUUID;
-    }
-
-    public String getCallback() {
-        return callback;
-    }
-
-    public void setCallback(String callback) {
-        this.callback = callback;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("orgUUID", orgUUID)
-            .add("source", source)
-            .add("callback", callback)
-            .toString();
-    }
 }
