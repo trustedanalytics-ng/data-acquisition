@@ -67,7 +67,7 @@ public class PermissionAcquireFilter extends OncePerRequestFilter {
                     .map(p -> p.getOrg().getGuid().toString()).collect(Collectors.toList());
             request.setAttribute(ACCESSIBLE_ORGS, ids);
 
-            if (ids.size() > 0) {
+            if (!ids.isEmpty()) {
                 filterChain.doFilter(request, httpServletResponse);
             } else {
                 LOGGER.debug("User access denied.");
