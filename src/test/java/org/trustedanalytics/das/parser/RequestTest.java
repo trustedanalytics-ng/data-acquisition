@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.hamcrest.Matchers.hasKey;
 import static org.junit.Assert.assertThat;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
@@ -31,7 +30,7 @@ public class RequestTest {
         return new Request.RequestBuilder(12, source)
             .withCategory("test category")
             .withId(UUID.randomUUID().toString())
-            .withOrgUUID(UUID.randomUUID().toString())
+            .withOrgId(UUID.randomUUID().toString())
             .withState(State.DOWNLOADED)
             .withTitle("test title")
             .build();

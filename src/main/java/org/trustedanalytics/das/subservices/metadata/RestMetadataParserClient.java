@@ -15,15 +15,12 @@
  */
 package org.trustedanalytics.das.subservices.metadata;
 
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.util.UriTemplate;
 import org.trustedanalytics.das.helper.OAuthAuthenticator;
 import org.trustedanalytics.das.helper.RestTokenAuthenticator;
 import org.trustedanalytics.das.parser.Request;
 import org.trustedanalytics.das.subservices.callbacks.CallbackUrlListener;
-
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.util.UriTemplate;
-
-import java.util.UUID;
 
 public class RestMetadataParserClient implements MetadataParser, CallbackUrlListener {
 
@@ -52,7 +49,7 @@ public class RestMetadataParserClient implements MetadataParser, CallbackUrlList
         req.setSource(request.getSource());
         req.setTitle(request.getTitle());
         req.setCategory(request.getCategory());
-        req.setOrgUUID(UUID.fromString(request.getOrgUUID()));
+        req.setOrgUUID(request.getOrgUUID());
         req.setPublicRequest(request.isPublicRequest());
         req.setCallbackUrl(new UriTemplate(callbacksUrl).expand("metadata", request.getId()));
         return req;

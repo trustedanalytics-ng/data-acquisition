@@ -15,28 +15,6 @@
  */
 package org.trustedanalytics.das;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +40,27 @@ import org.trustedanalytics.das.security.authorization.Authorization;
 import org.trustedanalytics.das.service.RequestDTO;
 import org.trustedanalytics.usermanagement.orgs.model.Org;
 import org.trustedanalytics.usermanagement.security.model.OrgPermission;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Main.class, InTestConfiguration.class})
@@ -114,13 +113,13 @@ public class DASIT {
     public void postRequest()
         throws InterruptedException, IOException, ServletException {
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn(TOKEN);
-        Org org = new Org(UUID.fromString("11111111-2222-3333-4444-555555555555"), "fakeName");
+        Org org = new Org("fakeId", "fakeName");
         OrgPermission permission = new OrgPermission(org, false, false);
         prepareAccessibleOrgList(permission);
 
         ResponseEntity<RequestDTO> response =
             testRestTemplate.postForEntity(effectiveBaseUrl,
-                new Request.RequestBuilder(0, "http://foo/bar.txt").withOrgUUID(org.getGuid().toString()).build(),
+                new Request.RequestBuilder(0, "http://foo/bar.txt").withOrgId(org.getGuid()).build(),
                 RequestDTO.class);
 
         assertThat(response.getStatusCode(), equalTo(HttpStatus.ACCEPTED));
@@ -144,13 +143,13 @@ public class DASIT {
     public void postRequest_emptySource_shouldREturn400()
             throws InterruptedException, IOException, ServletException {
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn(TOKEN);
-        Org org = new Org(UUID.fromString("11111111-2222-3333-4444-555555555555"), "fakeName");
+        Org org = new Org("fakeId", "fakeName");
         OrgPermission permission = new OrgPermission(org, false, false);
         prepareAccessibleOrgList(permission);
 
         ResponseEntity<String> response =
                 testRestTemplate.postForEntity(effectiveBaseUrl,
-                        new Request.RequestBuilder(0, "").withOrgUUID(org.getGuid().toString()).build(),
+                        new Request.RequestBuilder(0, "").withOrgId(org.getGuid()).build(),
                         String.class);
 
         assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
@@ -161,13 +160,13 @@ public class DASIT {
     public void postRequest_authorizationFails_shouldReturn403()
         throws URISyntaxException, InterruptedException, IOException, ServletException {
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn(TOKEN);
-        String testOrgUUID = "11111111-2222-3333-4444-555555555555";
+        String testOrgId = "fakeId";
         noOrgsAccessible();
 
         ResponseEntity<String> response =
             testRestTemplate.postForEntity(
                 effectiveBaseUrl,
-                    new Request.RequestBuilder(0, "source_url").withOrgUUID(testOrgUUID).build(),
+                    new Request.RequestBuilder(0, "source_url").withOrgId(testOrgId).build(),
                 String.class);
 
         assertThat(response.getStatusCode(), equalTo(HttpStatus.FORBIDDEN));
@@ -180,13 +179,13 @@ public class DASIT {
     public void postRequest_authenticationFails_shouldReturn401()
             throws URISyntaxException, InterruptedException, IOException, ServletException {
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn(null);
-        String testOrgUUID = "11111111-2222-3333-4444-555555555555";
+        String testOrgId = "fakeId";
         noOrgsAccessible();
 
         ResponseEntity<String> response =
                 testRestTemplate.postForEntity(
                         effectiveBaseUrl,
-                        new Request.RequestBuilder(0, "source_url").withOrgUUID(testOrgUUID).build(),
+                        new Request.RequestBuilder(0, "source_url").withOrgId(testOrgId).build(),
                         String.class);
 
         assertThat(response.getStatusCode(), equalTo(HttpStatus.UNAUTHORIZED));

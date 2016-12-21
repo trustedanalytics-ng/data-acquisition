@@ -15,48 +15,33 @@
  */
 package org.trustedanalytics.das.security.permissions;
 
-import org.trustedanalytics.das.security.PermissionAcquireFilter;
 import org.springframework.stereotype.Component;
+import org.trustedanalytics.das.security.PermissionAcquireFilter;
 import org.trustedanalytics.das.service.RequestDTO;
-import org.trustedanalytics.das.service.BadRequestException;
-import javax.servlet.http.HttpServletRequest;
+
 import java.nio.file.AccessDeniedException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class OrgPermissionVerifier implements PermissionVerifier {
     @Override
-    public UUID[] getAccessibleOrgsIDs(HttpServletRequest context) {
-        return (UUID[]) context.getAttribute(PermissionAcquireFilter.ACCESSIBLE_ORGS);
+    public Collection<String> getAccessibleOrgsIDs(HttpServletRequest context) {
+        return (Collection<String>) context.getAttribute(PermissionAcquireFilter.ACCESSIBLE_ORGS);
     }
 
     @Override
     public void throwForbiddenWhenNotAuthorized(HttpServletRequest context, RequestDTO request)
         throws AccessDeniedException {
-        UUID[] hasAccess = getAccessibleOrgsIDs(context);
-
-        throwBadRequestIfInvalidUuid(request.getOrgUUID());
-        UUID uuid = UUID.fromString(request.getOrgUUID());
-
-        throwForbiddenWhenIdNotListed(Arrays.asList(hasAccess), uuid);
+        throwForbiddenWhenIdNotListed(getAccessibleOrgsIDs(context), request.getOrgUUID());
     }
 
     @Override
-    public void throwForbiddenWhenIdNotListed(Collection<UUID> hasAccess, UUID uuid)
+    public void throwForbiddenWhenIdNotListed(Collection<String> hasAccess, String uuid)
         throws AccessDeniedException {
         if(!hasAccess.contains(uuid)) {
             throw new AccessDeniedException(String.format("You have not access to org: %s", uuid));
-        }
-    }
-
-    @Override
-    public void throwBadRequestIfInvalidUuid(String uuid) {
-        try {
-            UUID.fromString(uuid);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException(String.format("Organization UUID %s is not a valid UUID", uuid));
         }
     }
 }

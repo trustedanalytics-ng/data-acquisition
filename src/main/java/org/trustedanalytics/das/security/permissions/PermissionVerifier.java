@@ -16,20 +16,19 @@
 package org.trustedanalytics.das.security.permissions;
 
 import org.trustedanalytics.das.service.RequestDTO;
-import javax.servlet.http.HttpServletRequest;
+
 import java.nio.file.AccessDeniedException;
 import java.util.Collection;
-import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 public interface PermissionVerifier {
-        UUID[] getAccessibleOrgsIDs(HttpServletRequest context);
+        Collection<String> getAccessibleOrgsIDs(HttpServletRequest context);
 
     void throwForbiddenWhenNotAuthorized(HttpServletRequest context, RequestDTO request)
             throws AccessDeniedException;
 
-    void throwForbiddenWhenIdNotListed(Collection<UUID> hasAccess, UUID uuid)
+    void throwForbiddenWhenIdNotListed(Collection<String> hasAccess, String uuid)
             throws AccessDeniedException;
-
-    void throwBadRequestIfInvalidUuid(String toValidate);
 }

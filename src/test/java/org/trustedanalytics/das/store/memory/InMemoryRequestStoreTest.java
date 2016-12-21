@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.junit.Before;
@@ -42,44 +41,44 @@ public class InMemoryRequestStoreTest {
     @Test
     public void makingPrefixedKey() {
         assertEquals(
-            "orgUUID:key",
-            store.getOrgPrefixedKey("orgUUID", "key"));
+            "orgId:key",
+            store.getOrgPrefixedKey("orgId", "key"));
     }
 
     @Test
     public void getput() throws URISyntaxException {
-        String orgUUID = "orgUUID1";
+        String orgId = "orgId1";
         String key = "key1";
-        Request request = new Request.RequestBuilder(1, "file:///foo/bar.txt").withOrgUUID(orgUUID).withId(key).build();
+        Request request = new Request.RequestBuilder(1, "file:///foo/bar.txt").withOrgId(orgId).withId(key).build();
         store.put(request);
         assertThat(store.get(key).get(), equalTo(request));
     }
 
     @Test
     public void testGetAll() throws Exception {
-        String orgUUID1 = "orgUUID1";
-        String orgUUID2 = "orgUUID2";
-        Request request1 = new Request.RequestBuilder(1, "file:///foo/bar.txt").withOrgUUID(orgUUID1).withId("key1").build();
-        Request request2 = new Request.RequestBuilder(2, "file:///foo/bar.txt").withOrgUUID(orgUUID1).withId("key2").build();
-        Request request3 = new Request.RequestBuilder(3, "file:///foo/bar.txt").withOrgUUID(orgUUID2).withId("key3").build();
+        String orgId1 = "orgId1";
+        String orgId2 = "orgId2";
+        Request request1 = new Request.RequestBuilder(1, "file:///foo/bar.txt").withOrgId(orgId1).withId("key1").build();
+        Request request2 = new Request.RequestBuilder(2, "file:///foo/bar.txt").withOrgId(orgId1).withId("key2").build();
+        Request request3 = new Request.RequestBuilder(3, "file:///foo/bar.txt").withOrgId(orgId2).withId("key3").build();
         store.put(request1);
         store.put(request2);
         store.put(request3);
-        assertThat(store.getAll(orgUUID1).keySet(), containsInAnyOrder("orgUUID1:key1", "orgUUID1:key2"));
-        assertThat(store.getAll(orgUUID1).values(), containsInAnyOrder(request1, request2));
-        assertThat(store.getAll(orgUUID2).values(), containsInAnyOrder(request3));
+        assertThat(store.getAll(orgId1).keySet(), containsInAnyOrder("orgId1:key1", "orgId1:key2"));
+        assertThat(store.getAll(orgId1).values(), containsInAnyOrder(request1, request2));
+        assertThat(store.getAll(orgId2).values(), containsInAnyOrder(request3));
     }
 
     @Test
     public void delete() throws URISyntaxException {
         String key = "key1";
-        String orgUUID = "orgUUID1";
+        String orgId = "orgId";
         Request request =
-                new Request.RequestBuilder(1, "file:///foo/bar.txt").withOrgUUID(orgUUID).withId(key).build();
+                new Request.RequestBuilder(1, "file:///foo/bar.txt").withOrgId(orgId).withId(key).build();
         store.put(request);
 
         store.delete(key);
         
-        assertThat(store.getAll(orgUUID).keySet(), empty());
+        assertThat(store.getAll(orgId).keySet(), empty());
     }
 }

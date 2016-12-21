@@ -19,7 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.net.URI;
-import java.util.UUID;
 
 public class MetadataParseRequest {
     @Getter @Setter
@@ -41,7 +40,7 @@ public class MetadataParseRequest {
     private String category;
 
     @Getter @Setter
-    private UUID orgUUID;
+    private String orgUUID;
 
     @Getter @Setter
     private boolean publicRequest;

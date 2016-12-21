@@ -15,6 +15,32 @@
  */
 package org.trustedanalytics.das.service;
 
+import com.google.common.collect.ImmutableSet;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.core.Authentication;
+import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
+import org.trustedanalytics.das.dataflow.FlowManager;
+import org.trustedanalytics.das.helper.RequestIdGenerator;
+import org.trustedanalytics.das.parser.Request;
+import org.trustedanalytics.das.parser.State;
+import org.trustedanalytics.das.security.permissions.PermissionVerifier;
+import org.trustedanalytics.das.store.RequestStore;
+
+import java.nio.file.AccessDeniedException;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import javax.servlet.http.HttpServletRequest;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.not;
@@ -23,31 +49,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.google.common.collect.ImmutableSet;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.trustedanalytics.cloud.auth.AuthTokenRetriever;
-import org.trustedanalytics.das.dataflow.FlowManager;
-import org.trustedanalytics.das.helper.RequestIdGenerator;
-import org.trustedanalytics.das.parser.Request;
-import org.trustedanalytics.das.parser.State;
-import org.trustedanalytics.das.security.permissions.PermissionVerifier;
-import org.trustedanalytics.das.store.RequestStore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.security.core.Authentication;
-
-import javax.servlet.http.HttpServletRequest;
-import java.nio.file.AccessDeniedException;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RestDataAcquisitionServiceTest {
@@ -120,9 +121,9 @@ public class RestDataAcquisitionServiceTest {
     }
 
     private void testAdd(Request.RequestBuilder requestBuilder, State expectedState, Consumer<Request> verify) throws AccessDeniedException {
-        String testOrgUUID = UUID.randomUUID().toString();
+        String testOrgId = "org";
         Request request = requestBuilder
-                .withOrgUUID(testOrgUUID)
+                .withOrgId(testOrgId)
                 .withToken("2asdas13")
                 .build();
 
@@ -130,7 +131,7 @@ public class RestDataAcquisitionServiceTest {
                 .withCategory("other")
                 .withState(expectedState)
                 .withId("2")
-                .withOrgUUID(testOrgUUID)
+                .withOrgId(testOrgId)
                 .build();
 
         when(tokenRetriever.getAuthToken(any(Authentication.class))).thenReturn("1231aessa");
@@ -143,19 +144,19 @@ public class RestDataAcquisitionServiceTest {
 
     private Request.RequestBuilder getTestHttpRequest() {
         return new Request.RequestBuilder(1, "http://foo/bar.txt")
-            .withOrgUUID("org")
+            .withOrgId("org")
             .withId("1");
     }
 
     private Request.RequestBuilder getTestRequestWithHdfsFile() {
         return new Request.RequestBuilder(1, "hdfs://nameservice1/org/intel/hdfsbroker/userspace/c5378e1f-a35b-4b8b-b800/b519d8c7-2fc0-4842-920b/000000_1")
-                .withOrgUUID("org")
+                .withOrgId("org")
                 .withId("1");
     }
 
     private Request.RequestBuilder getTestRequestWithUnknownProtocol() {
         return new Request.RequestBuilder(1, "foo/bar.txt")
-                .withOrgUUID("org")
+                .withOrgId("org")
                 .withId("1");
     }
 

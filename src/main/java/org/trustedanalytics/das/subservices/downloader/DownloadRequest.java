@@ -17,19 +17,17 @@ package org.trustedanalytics.das.subservices.downloader;
 
 import com.google.common.base.MoreObjects;
 
-import java.util.UUID;
-
 public class DownloadRequest {
 
-    private UUID orgUUID;
+    private String orgUUID;
     private String source;
     private String callback;
 
-    public UUID getOrgUUID() {
+    public String getOrgUUID() {
         return orgUUID;
     }
 
-    public void setOrgUUID(UUID orgUUID) {
+    public void setOrgUUID(String orgUUID) {
         this.orgUUID = orgUUID;
     }
 

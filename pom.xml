@@ -365,7 +365,7 @@
         <dependency>
           <groupId>org.trustedanalytics</groupId>
           <artifactId>user-management</artifactId>
-          <version>0.7.6</version>
+          <version>0.7.17</version>
 	  <classifier>api-model</classifier>
         </dependency>
     </dependencies>

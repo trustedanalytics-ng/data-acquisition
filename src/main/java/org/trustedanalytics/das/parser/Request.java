@@ -53,7 +53,7 @@ public class Request {
 
         private String title;
 
-        private String orgUUID;
+        private String orgId;
 
         private String token;
 
@@ -72,7 +72,7 @@ public class Request {
             category = original.getCategory();
             id = original.getId();
             idInObjectStore = original.getIdInObjectStore();
-            orgUUID = original.getOrgUUID();
+            orgId = original.getOrgUUID();
             publicRequest = original.isPublicRequest();
             if(StringUtils.isNotBlank(original.getSource())) {
                 source = original.getSource();
@@ -91,7 +91,7 @@ public class Request {
             category = StringUtils.isBlank(dto.getCategory()) ? OTHER : dto.getCategory();
             id = dto.getId();
             idInObjectStore = dto.getIdInObjectStore();
-            orgUUID = dto.getOrgUUID();
+            orgId = dto.getOrgUUID();
             publicRequest = dto.isPublicRequest();
             source = dto.getSource();
             state = dto.getState();
@@ -125,8 +125,8 @@ public class Request {
             return this;
         }
 
-        public RequestBuilder withOrgUUID(String orgUUID) {
-            this.orgUUID = orgUUID;
+        public RequestBuilder withOrgId(String orgId) {
+            this.orgId = orgId;
             return this;
         }
 
@@ -147,7 +147,7 @@ public class Request {
 
         public Request build() {
             return new Request(id, userId, source, state, idInObjectStore, category,
-                    title, orgUUID, token, publicRequest, timestamps);
+                    title, orgId, token, publicRequest, timestamps);
         }
     }
 

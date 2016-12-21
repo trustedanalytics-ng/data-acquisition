@@ -41,8 +41,8 @@ public class InMemoryRequestStore implements RequestStore {
     }
 
     @Override
-    public Map<String, Request> getAll(String orgUUID) {
-        return this.filterByOrgId(this.store, orgUUID);
+    public Map<String, Request> getAll(String orgId) {
+        return this.filterByOrgId(this.store, orgId);
     }
 
     @Override

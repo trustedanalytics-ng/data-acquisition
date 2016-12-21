@@ -29,7 +29,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.redis.core.BoundHashOperations;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +50,7 @@ public class RedisRequestRepositoryTest {
     @Test
     public void get() throws URISyntaxException {
         Request expected = new Request.RequestBuilder(1, "file:///foo/bar.txt")
-                .withOrgUUID("orgID1")
+                .withOrgId("orgID1")
                 .withId("key1")
                 .build();
         Map<String, Request> entries = (Map<String, Request>) new HashMap<String, Request>();
@@ -66,7 +65,7 @@ public class RedisRequestRepositoryTest {
     @Test
     public void put() throws URISyntaxException {
         Request request = new Request.RequestBuilder(1, "file:///foo/bar.txt")
-                .withOrgUUID("orgID1")
+                .withOrgId("orgID1")
                 .withId("key1")
                 .build();
         repository.put(request);
@@ -76,17 +75,17 @@ public class RedisRequestRepositoryTest {
 
     @Test
     public void getAll() throws URISyntaxException {
-        String orgUUID = "orgID1";
+        String orgId = "orgID1";
         Request request = new Request.RequestBuilder(1, "file:///foo/bar.txt")
-                .withOrgUUID(orgUUID).withId("key1").build();
+                .withOrgId(orgId).withId("key1").build();
         Request request2 = new Request.RequestBuilder(2, "file:///foo/bar.txt")
-                .withOrgUUID(orgUUID).withId("key2").build();
+                .withOrgId(orgId).withId("key2").build();
         HashMap<String,Request> map = new HashMap<String, Request>();
         map.put(request.getOrgUUID() + ":" + request.getId(), request);
         map.put(request.getOrgUUID() + ":" +request2.getId(), request2);
         when(hashOps.entries()).thenReturn(map);
 
-        Map<String, Request> all = repository.getAll(orgUUID);
+        Map<String, Request> all = repository.getAll(orgId);
 
         assertThat(all.size(), equalTo(2));
         assertThat(all.values(), hasItems(request, request2));
@@ -95,16 +94,16 @@ public class RedisRequestRepositoryTest {
     @Test
     public void delete() {
         String key = "key1";
-        String orgUUID = "orgUUID1";
+        String orgId = "orgId1";
 
         HashMap<String,Request> map = new HashMap<String, Request>();
-        Request request =  new Request.RequestBuilder(1, null).withOrgUUID(orgUUID).withId(key).build();
+        Request request =  new Request.RequestBuilder(1, null).withOrgId(orgId).withId(key).build();
 
-        map.put(orgUUID + ":" + key, request);
+        map.put(orgId + ":" + key, request);
         when(hashOps.entries()).thenReturn(map);
 
         repository.delete(key);
 
-        verify(hashOps).delete(Mockito.eq(orgUUID + ":" + key));
+        verify(hashOps).delete(Mockito.eq(orgId + ":" + key));
     }
 }

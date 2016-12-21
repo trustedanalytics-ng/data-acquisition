@@ -15,9 +15,6 @@
  */
 package org.trustedanalytics.das.service;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +36,6 @@ import org.trustedanalytics.das.parser.Request;
 import org.trustedanalytics.das.security.permissions.PermissionVerifier;
 import org.trustedanalytics.das.store.RequestStore;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
@@ -49,9 +44,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -164,16 +165,16 @@ public class RestDataAcquisitionService {
             throws AccessDeniedException {
         LOGGER.debug("getAllRequest()");
 
-        Collection<UUID> hasAccess = Arrays.asList(permissionVerifier.getAccessibleOrgsIDs(context));
+        Collection<String> hasAccess = permissionVerifier.getAccessibleOrgsIDs(context);
 
-        String[] uuids = null;
+        Collection<String> uuids;
         if (orgs != null) {
-            uuids = orgs.split(",");
+            uuids = Arrays.asList(orgs.split(","));
             for (String u : uuids) {
-                permissionVerifier.throwForbiddenWhenIdNotListed(hasAccess, UUID.fromString(u));
+                permissionVerifier.throwForbiddenWhenIdNotListed(hasAccess, u);
             }
         } else {
-            uuids = hasAccess.stream().map(uuid -> uuid.toString()).toArray(String[]::new);
+            uuids = hasAccess;
         }
 
         Map<String, Request> result = new HashMap<>();
@@ -212,12 +213,13 @@ public class RestDataAcquisitionService {
 
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(NOT_FOUND)
-    public void noSuchElementExceptionHandler() {
+    public void noSuchElementExceptionHandler(NoSuchElementException exception) {
+        LOGGER.warn("No such element: {}", exception.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public void accessForbidden(HttpServletResponse response) throws IOException {
-        LOGGER.warn("Access forbidden.");
+    public void accessForbidden(AccessDeniedException exception, HttpServletResponse response) throws IOException {
+        LOGGER.warn("Access forbidden: {}", exception.getMessage());
         response.sendError(FORBIDDEN.value(), "You do not have access to requested organization.");
     }
 

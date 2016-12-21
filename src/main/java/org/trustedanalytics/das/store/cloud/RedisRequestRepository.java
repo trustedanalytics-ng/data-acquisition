@@ -46,8 +46,8 @@ public class RedisRequestRepository implements RequestStore {
     }
 
     @Override
-    public Map<String, Request> getAll(String orgUUID) {
-        return this.filterByOrgId(this.hashOps.entries(), orgUUID);
+    public Map<String, Request> getAll(String orgId) {
+        return this.filterByOrgId(this.hashOps.entries(), orgId);
     }
 
     @Override

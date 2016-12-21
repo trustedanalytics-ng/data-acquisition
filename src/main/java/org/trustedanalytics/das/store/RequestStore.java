@@ -31,16 +31,16 @@ public interface RequestStore {
 
     Optional<Request> get(String key);
 
-    Map<String, Request> getAll(String orgUUID);
+    Map<String, Request> getAll(String orgId);
 
     void delete(String key);
 
-    default String getOrgPrefixedKey(String orgUUID, String key) {
-        return String.format("%s" + ":" +"%s", orgUUID, key);
+    default String getOrgPrefixedKey(String orgId, String key) {
+        return String.format("%s" + ":" +"%s", orgId, key);
     }
 
-    default Map<String, Request> filterByOrgId(Map<String, Request> requests, String orgUUID) {
-        return requests.entrySet().stream().filter(x -> x.getKey().startsWith(orgUUID + ":"))
+    default Map<String, Request> filterByOrgId(Map<String, Request> requests, String orgId) {
+        return requests.entrySet().stream().filter(x -> x.getKey().startsWith(orgId + ":"))
             .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
     }
 

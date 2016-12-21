@@ -19,13 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
-
 import org.trustedanalytics.das.helper.OAuthAuthenticator;
 import org.trustedanalytics.das.helper.RestTokenAuthenticator;
 import org.trustedanalytics.das.parser.Request;
 import org.trustedanalytics.das.subservices.callbacks.CallbackUrlListener;
-
-import java.util.UUID;
 
 public class RestDownloaderClient implements DownloaderClient, CallbackUrlListener {
 
@@ -59,7 +56,7 @@ public class RestDownloaderClient implements DownloaderClient, CallbackUrlListen
         authenticator.authenticate(restTemplate, request.getToken());
 
         DownloadRequest downloadRequest = new DownloadRequest();
-        downloadRequest.setOrgUUID(UUID.fromString(request.getOrgUUID()));
+        downloadRequest.setOrgUUID(request.getOrgUUID());
         downloadRequest.setSource(request.getSource().toString());
         downloadRequest.setCallback(new UriTemplate(callbacksUrl).
                 expand("downloader", request.getId()).toString());
