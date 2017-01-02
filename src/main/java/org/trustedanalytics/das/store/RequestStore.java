@@ -36,7 +36,7 @@ public interface RequestStore {
     void delete(String key);
 
     default String getOrgPrefixedKey(String orgId, String key) {
-        return String.format("%s" + ":" +"%s", orgId, key);
+        return String.format("%s:%s", orgId, key);
     }
 
     default Map<String, Request> filterByOrgId(Map<String, Request> requests, String orgId) {
